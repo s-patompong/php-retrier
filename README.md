@@ -7,7 +7,12 @@
 
 Retrier can help you retry your logic easily.
 ```php
-// Your API class
+<?php
+
+// Your own API class
+use App\Api\ApiConnector;
+use SPatompong\Retrier\Retrier;
+
 $api = new ApiConnector();
 
 // By default, Retrier use RetryThrowableStrategy which will retry if the result is an instance of \Throwable
@@ -39,6 +44,12 @@ Fields and their default values:
 
 Minimal configuration example:
 ```php
+<?php
+
+// Your own API class
+use App\Api\ApiConnector;
+use SPatompong\Retrier\Retrier;
+
 $api = new ApiConnector();
 
 $retrier = (new Retrier())
@@ -57,7 +68,13 @@ try {
 
 Full configuration example:
 ```php
-// Your class
+<?php
+
+// Your own API class
+use App\Api\ApiConnector;
+use SPatompong\Retrier\Retrier;
+use SPatompong\Retrier\Presets\Strategies\RetryNullStrategy;
+
 $api = new ApiConnector();
 
 // Keep track of retry count, useful for logging or echoing to the terminal
@@ -89,11 +106,33 @@ $value = (new Retrier())
 echo $value;
 ```
 
+It's also possible to use callable array syntax when set the logic or retryListener:
+```php
+<?php
+
+use SPatompong\Retrier\Retrier;
+use SPatompong\Retrier\Tests\Helpers\FakeClass;
+
+$fakeClass = new FakeClass();
+
+$publicMethodResult = (new Retrier())
+    ->setLogic([$fakeClass, 'fakePublicMethod'])
+    ->execute();
+    
+$staticMethodResult = (new Retrier())
+    ->setLogic([FakeClass::class, 'fakeStaticMethod'])
+    ->execute();
+```
+
 ## Retry Strategy
 
 RetryStrategy is a class that implement RetryStrategy interface. The Retrier class uses it to determine if it should retry or not (given the return value from the logic).
 
 ```php
+<?php
+
+namespace SPatompong\Retrier\Contracts;
+
 interface RetryStrategy
 {
     /**
@@ -134,6 +173,7 @@ Then, set it as a retry strategy of the Retrier:
 ```php
 <?php
 
+use SPatompong\Retrier\Retrier;
 use App\RetryStrategies\RetryGuzzleClientExceptionStrategy;
 
 $retrier = (new Retrier())

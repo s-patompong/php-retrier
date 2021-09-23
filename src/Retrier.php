@@ -104,7 +104,7 @@ class Retrier
      */
     public function setRetryTimes(int $retryTimes): Retrier
     {
-        if ( $retryTimes < 0 ) {
+        if ($retryTimes < 0) {
             throw new InvalidRetryTimesException("Retry time must be >= 0.");
         }
 
@@ -128,7 +128,7 @@ class Retrier
      */
     public function setDelay(int $delay): Retrier
     {
-        if ( $delay < 0 ) {
+        if ($delay < 0) {
             throw new InvalidDelayException("Delay must be >= 0.");
         }
 
@@ -178,12 +178,12 @@ class Retrier
                 $value = call_user_func($this->logic);
 
                 // Return the value early if we don't need to retry it
-                if ( ! $this->retryStrategy->shouldRetry($value) ) {
+                if (! $this->retryStrategy->shouldRetry($value)) {
                     return $value;
                 }
             } catch (Throwable $t) {
                 // Throw the exception early if we don't need to retry it
-                if ( ! $this->retryStrategy->shouldRetry($t) ) {
+                if (! $this->retryStrategy->shouldRetry($t)) {
                     throw $t;
                 }
 
@@ -195,14 +195,14 @@ class Retrier
             call_user_func($this->onRetryListener, $try, $value, $throwable);
 
             // Only wait if it's not the last retry
-            if ( $try < $this->retryTimes ) {
+            if ($try < $this->retryTimes) {
                 sleep($this->delay);
             }
         }
 
         // If after finish the user func and the throwable is not null
         // We need to throw it
-        if ( ! is_null($throwable) ) {
+        if (! is_null($throwable)) {
             throw $throwable;
         }
 
