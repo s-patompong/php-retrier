@@ -9,10 +9,6 @@ class RetryThrowableStrategy implements RetryStrategy
 {
     public function shouldRetry(mixed $value): bool
     {
-        if ($value instanceof Throwable) {
-            return true;
-        }
-
-        return false;
+        return $value instanceof Throwable;
     }
 }
