@@ -1,7 +1,7 @@
 # A package that provide Retrier class that you can use to retry your logic easily
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/s-patompong/php-retrier.svg?style=flat-square)](https://packagist.org/packages/s-patompong/php-retrier)
-[![GitHub Tests Action Status](https://img.shields.io/github/workflow/status/s-patompong/php-retrier/run-tests?label=tests)](https://github.com/s-patompong/php-retrier/actions?query=workflow%3ATests+branch%3Amaster)
+[![GitHub Tests Action Status](https://img.shields.io/github/workflow/status/s-patompong/php-retrier/run-tests?label=tests)](https://github.com/s-patompong/php-retrier/actions?query=workflow%3ATests+branch%3Amain)
 [![GitHub Code Style Action Status](https://img.shields.io/github/workflow/status/s-patompong/php-retrier/Check%20&%20fix%20styling?label=code%20style)](https://github.com/s-patompong/php-retrier/actions?query=workflow%3A"Check+%26+fix+styling"+branch%3Amaster)
 [![Total Downloads](https://img.shields.io/packagist/dt/s-patompong/php-retrier.svg?style=flat-square)](https://packagist.org/packages/s-patompong/php-retrier)
 
