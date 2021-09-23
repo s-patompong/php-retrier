@@ -1,16 +1,16 @@
 {
-    "name": ":vendor_slug/:package_slug",
-    "description": ":package_description",
+    "name": "s-patompong/php-retrier",
+    "description": "A package that provide Retrier class that you can use to retry your logic easily",
     "keywords": [
-        ":vendor_name",
-        ":package_slug"
+        "s-patompong",
+        "php-retrier"
     ],
-    "homepage": "https://github.com/:vendor_slug/:package_slug",
+    "homepage": "https://github.com/s-patompong/php-retrier",
     "license": "MIT",
     "authors": [
         {
-            "name": ":author_name",
-            "email": "author@domain.com",
+            "name": "Patompong Savaengsuk",
+            "email": "p.pangpond@gmail.com",
             "role": "Developer"
         }
     ],
@@ -25,12 +25,12 @@
     },
     "autoload": {
         "psr-4": {
-            "VendorName\\Skeleton\\": "src"
+            "SPatompong\\Retrier\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "VendorName\\Skeleton\\Tests\\": "tests"
+            "SPatompong\\Retrier\\Tests\\": "tests"
         }
     },
     "scripts": {
