@@ -8,7 +8,7 @@ use SPatompong\Retrier\Exceptions\InvalidDelayException;
 use SPatompong\Retrier\Exceptions\InvalidRetryTimesException;
 use SPatompong\Retrier\Presets\Strategies\RetryNullStrategy;
 use SPatompong\Retrier\Retrier;
-use SPatompong\Retrier\Tests\helpers\FakeClass;
+use SPatompong\Retrier\Tests\Helpers\FakeClass;
 
 class RetrierTest extends TestCase
 {

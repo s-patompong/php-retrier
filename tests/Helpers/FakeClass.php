@@ -1,6 +1,6 @@
 <?php
 
-namespace SPatompong\Retrier\Tests\helpers;
+namespace SPatompong\Retrier\Tests\Helpers;
 
 class FakeClass
 {
