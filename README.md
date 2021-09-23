@@ -1,28 +1,22 @@
-# A package that provide Retrier class that you can use to retry your logic easily
+# PHP Retrier
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/s-patompong/php-retrier.svg?style=flat-square)](https://packagist.org/packages/s-patompong/php-retrier)
 [![GitHub Tests Action Status](https://img.shields.io/github/workflow/status/s-patompong/php-retrier/Tests?label=tests)](https://github.com/s-patompong/php-retrier/actions?query=workflow%3ATests+branch%3Amain)
 [![GitHub Code Style Action Status](https://img.shields.io/github/workflow/status/s-patompong/php-retrier/Check%20&%20fix%20styling?label=code%20style)](https://github.com/s-patompong/php-retrier/actions?query=workflow%3A"Check+%26+fix+styling"+branch%3Amaster)
 [![Total Downloads](https://img.shields.io/packagist/dt/s-patompong/php-retrier.svg?style=flat-square)](https://packagist.org/packages/s-patompong/php-retrier)
 
----
-This package can be used as to scaffold a framework agnostic package. Follow these steps to get started:
+Retrier can help you retry your logic easily.
+```php
+// Your API class
+$api = new ApiConnector();
 
-1. Press the "Use template" button at the top of this repo to create a new repo with the contents of this skeleton
-2. Run "php ./configure.php" to run a script that will replace all placeholders throughout all the files
-3. Have fun creating your package.
-4. If you need help creating a package, consider picking up our <a href="https://laravelpackage.training">Laravel Package Training</a> video course.
----
-
-This is where your description should go. Try and limit it to a paragraph or two. Consider adding a small example.
-
-## Support us
-
-[<img src="https://github-ads.s3.eu-central-1.amazonaws.com/php-retrier.jpg?t=1" width="419px" />](https://spatie.be/github-ad-click/php-retrier)
-
-We invest a lot of resources into creating [best in class open source packages](https://spatie.be/open-source). You can support us by [buying one of our paid products](https://spatie.be/open-source/support-us).
-
-We highly appreciate you sending us a postcard from your hometown, mentioning which of our package(s) you are using. You'll find our address on [our contact page](https://spatie.be/about-us). We publish all received postcards on [our virtual postcard wall](https://spatie.be/open-source/postcards).
+// By default, Retrier use RetryThrowableStrategy which will retry if the result is an instance of \Throwable
+$result = (new Retrier())
+    ->setLogic(function() use($api) {
+        return $api->get();
+    })
+    ->execute();
+```
 
 ## Installation
 
@@ -34,10 +28,123 @@ composer require s-patompong/php-retrier
 
 ## Usage
 
+Fields and their default values:
+
+| Field           | Description                                    | Setter                                                                                                              | Default |
+|-----------------|------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|---------|
+| delay           | Wait time between each retry                   | setDelay(int $delay): Retrier                                                                                       | 3       |
+| retryTimes      | Number of retry                                | setRetryTimes(int $retryTimes): Retrier                                                                             | 3       |
+| onRetryListener | A closure that will be called on retry         | setOnRetryListener(function(int $currentTryTimes, ?mixed $returnedValue, ?\Throwable $throwable): void {}): Retrier | null    |
+| retryStrategy   | A class that implement RetryStrategy interface | setRetryStrategy(RetryStrategy $retryStrategy): Retrier                                                             | null    |
+
+Minimal configuration example:
 ```php
-$skeleton = new SPatompong\Retrier();
-echo $skeleton->echoPhrase('Hello, SPatompong!');
+$api = new ApiConnector();
+
+$retrier = (new Retrier())
+    ->setLogic(function() {
+        return 0;
+    });
+
+// After 3 retries, it's possible that the code still gets the \Throwable
+// Thus, we still need to put it in a try/catch block
+try {
+    $value = $retrier->execute();
+} catch(\Throwable $t) {
+    echo "Still gets throwable after 3 retries.\n";
+}
 ```
+
+Full configuration example:
+```php
+// Your class
+$api = new ApiConnector();
+
+// Keep track of retry count, useful for logging or echoing to the terminal
+$retryCount = 0;
+
+$value = (new Retrier())
+    // Change the stragegy to RetryNullStrategy to keep retrying if the Logic returns null
+    ->setRetryStrategy(new RetryNullStrategy())
+    
+    // Set the wait time for each retry to 10 seconds
+    ->setDelay(10)
+    
+    // Let the code retry 5 times
+    ->setRetryTimes(5)
+    
+    // Set the onRetryListener to print out some useful log
+    ->setOnRetryListener(function ($currentTryCount, $value, $throwable) use (&$retryCount) {
+        $retryCount++;
+        echo "Failed to get API data, retry count: $retryCount\n";
+    })
+    
+    // Set the logic
+    ->setLogic(fn () => $api->get())
+    
+    // Execute it
+    ->execute();
+    
+// At this point, value could still be null if after 5 times the code still couldn't get the API data
+echo $value;
+```
+
+## Retry Strategy
+
+RetryStrategy is a class that implement RetryStrategy interface.
+```php
+interface RetryStrategy
+{
+    /**
+     * Add a logic to check if the retrier should retry
+     *
+     * @param mixed $value
+     * @return bool
+     */
+    public function shouldRetry(mixed $value): bool;
+}
+```
+
+This library provides two presets strategy:
+1. `RetryThrowableStrategy` - This is a default strategy that will retry any \Throwable response.
+2. `RetryNullStrategy` - This strategy will keep retry if the response is NULL.
+
+If you want to have a custom `shouldRetry()` logic, you can create your own RetryStrategy class and implement this RetryStrategy interface.
+
+```php
+<?php
+
+namespace App\RetryStrategies;
+
+use SPatompong\Retrier\Contracts\RetryStrategy;
+use GuzzleHttp\Exception\ClientException;
+
+class RetryGuzzleClientExceptionStrategy implements RetryStrategy
+{
+    public function shouldRetry(mixed $value): bool
+    {
+        return $value instanceof ClientException;
+    }
+}
+```
+
+Then, set it as a retry strategy of the Retrier:
+
+```php
+<?php
+
+use App\RetryStrategies\RetryGuzzleClientExceptionStrategy;
+
+$retrier = (new Retrier())
+    ->setRetryStrategy(new RetryGuzzleClientExceptionStrategy())
+    
+try {
+    $retrier->execute();
+} catch(\Throwable $t) {
+    // Still gets ClientException after retry or other type of Throwable
+}
+```
+
 
 ## Testing
 
