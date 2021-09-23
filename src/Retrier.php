@@ -67,6 +67,7 @@ class Retrier
     public function setRetryStrategy(RetryStrategy $retryStrategy): Retrier
     {
         $this->retryStrategy = $retryStrategy;
+
         return $this;
     }
 
@@ -85,6 +86,7 @@ class Retrier
     public function setLogic(Closure $logic): Retrier
     {
         $this->logic = $logic;
+
         return $this;
     }
 
@@ -108,6 +110,7 @@ class Retrier
         }
 
         $this->retryTimes = $retryTimes;
+
         return $this;
     }
 
@@ -131,6 +134,7 @@ class Retrier
         }
 
         $this->delay = $delay;
+
         return $this;
     }
 
@@ -149,6 +153,7 @@ class Retrier
     public function setOnRetryListener(Closure $onRetryListener): Retrier
     {
         $this->onRetryListener = $onRetryListener;
+
         return $this;
     }
 
@@ -174,12 +179,12 @@ class Retrier
                 $value = call_user_func($this->logic);
 
                 // Return the value early if we don't need to retry it
-                if (!$this->retryStrategy->shouldRetry($value)) {
+                if (! $this->retryStrategy->shouldRetry($value)) {
                     return $value;
                 }
             } catch (Throwable $t) {
                 // Throw the exception early if we don't need to retry it
-                if (!$this->retryStrategy->shouldRetry($t)) {
+                if (! $this->retryStrategy->shouldRetry($t)) {
                     throw $t;
                 }
 
@@ -198,7 +203,7 @@ class Retrier
 
         // If after finish the user func and the throwable is not null
         // We need to throw it
-        if (!is_null($throwable)) {
+        if (! is_null($throwable)) {
             throw $throwable;
         }
 
