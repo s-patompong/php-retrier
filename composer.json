@@ -1,6 +1,6 @@
 {
     "name": "s-patompong/php-retrier",
-    "description": "A package that provide Retrier class that you can use to retry your logic easily",
+    "description": "PHP Retrier lets you retry your logic easily.",
     "keywords": [
         "s-patompong",
         "php-retrier"
