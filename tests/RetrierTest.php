@@ -57,7 +57,7 @@ class RetrierTest extends TestCase
             ->setOnRetryListener(function () use (&$retryCount) {
                 $retryCount++;
             })
-            ->setLogic(fn() => throw new Exception('Test Exception'))
+            ->setLogic(fn () => throw new Exception('Test Exception'))
             ->execute();
 
         $this->assertEquals(10, $retryCount);
@@ -75,7 +75,7 @@ class RetrierTest extends TestCase
             ->setOnRetryListener(function () use (&$retryCount) {
                 $retryCount++;
             })
-            ->setLogic(fn() => null)
+            ->setLogic(fn () => null)
             ->execute();
 
         $this->assertEquals(3, $retryCount);
