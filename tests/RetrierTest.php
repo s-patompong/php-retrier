@@ -8,6 +8,7 @@ use SPatompong\Retrier\Exceptions\InvalidDelayException;
 use SPatompong\Retrier\Exceptions\InvalidRetryTimesException;
 use SPatompong\Retrier\Presets\Strategies\RetryNullStrategy;
 use SPatompong\Retrier\Retrier;
+use SPatompong\Retrier\Tests\helpers\FakeClass;
 
 class RetrierTest extends TestCase
 {
@@ -56,7 +57,7 @@ class RetrierTest extends TestCase
             ->setOnRetryListener(function () use (&$retryCount) {
                 $retryCount++;
             })
-            ->setLogic(fn () => throw new Exception('Test Exception'))
+            ->setLogic(fn() => throw new Exception('Test Exception'))
             ->execute();
 
         $this->assertEquals(10, $retryCount);
@@ -74,10 +75,32 @@ class RetrierTest extends TestCase
             ->setOnRetryListener(function () use (&$retryCount) {
                 $retryCount++;
             })
-            ->setLogic(fn () => null)
+            ->setLogic(fn() => null)
             ->execute();
 
         $this->assertEquals(3, $retryCount);
         $this->assertNull($shouldBeNull);
+    }
+
+    /** @test */
+    public function it_can_retry_public_method_of_a_class()
+    {
+        $fakeClass = new FakeClass();
+
+        $result = (new Retrier())
+            ->setLogic([$fakeClass, 'fakePublicMethod'])
+            ->execute();
+
+        $this->assertEquals($fakeClass->fakePublicMethod(), $result);
+    }
+
+    /** @test */
+    public function it_can_retry_static_method_of_a_class()
+    {
+        $result = (new Retrier())
+            ->setLogic([FakeClass::class, 'fakeStaticMethod'])
+            ->execute();
+
+        $this->assertEquals(FakeClass::fakeStaticMethod(), $result);
     }
 }

@@ -2,7 +2,6 @@
 
 namespace SPatompong\Retrier;
 
-use Closure;
 use SPatompong\Retrier\Contracts\RetryStrategy;
 use SPatompong\Retrier\Exceptions\InvalidDelayException;
 use SPatompong\Retrier\Exceptions\InvalidRetryTimesException;
@@ -21,17 +20,17 @@ class Retrier
     /**
      * A logic to execute, it MUST return something
      *
-     * @var Closure
+     * @var callable
      */
-    private Closure $logic;
+    private $logic;
 
     /**
      * A callable with a signature of:
      * ($currentRetryTimes, $value, $throwable): void
      *
-     * @var Closure call
+     * @var callable
      */
-    private Closure $onRetryListener;
+    private $onRetryListener;
 
     private int $retryTimes = 3;
 
@@ -72,18 +71,18 @@ class Retrier
     }
 
     /**
-     * @return Closure
+     * @return callable
      */
-    public function getLogic(): Closure
+    public function getLogic(): callable
     {
         return $this->logic;
     }
 
     /**
-     * @param Closure $logic
+     * @param callable $logic
      * @return Retrier
      */
-    public function setLogic(Closure $logic): Retrier
+    public function setLogic(callable $logic): Retrier
     {
         $this->logic = $logic;
 
@@ -105,7 +104,7 @@ class Retrier
      */
     public function setRetryTimes(int $retryTimes): Retrier
     {
-        if ($retryTimes < 0) {
+        if ( $retryTimes < 0 ) {
             throw new InvalidRetryTimesException("Retry time must be >= 0.");
         }
 
@@ -129,7 +128,7 @@ class Retrier
      */
     public function setDelay(int $delay): Retrier
     {
-        if ($delay < 0) {
+        if ( $delay < 0 ) {
             throw new InvalidDelayException("Delay must be >= 0.");
         }
 
@@ -139,18 +138,18 @@ class Retrier
     }
 
     /**
-     * @return Closure
+     * @return callable
      */
-    public function getOnRetryListener(): Closure
+    public function getOnRetryListener(): callable
     {
         return $this->onRetryListener;
     }
 
     /**
-     * @param Closure $onRetryListener
+     * @param callable $onRetryListener
      * @return Retrier
      */
-    public function setOnRetryListener(Closure $onRetryListener): Retrier
+    public function setOnRetryListener(callable $onRetryListener): Retrier
     {
         $this->onRetryListener = $onRetryListener;
 
@@ -179,12 +178,12 @@ class Retrier
                 $value = call_user_func($this->logic);
 
                 // Return the value early if we don't need to retry it
-                if (! $this->retryStrategy->shouldRetry($value)) {
+                if ( ! $this->retryStrategy->shouldRetry($value) ) {
                     return $value;
                 }
             } catch (Throwable $t) {
                 // Throw the exception early if we don't need to retry it
-                if (! $this->retryStrategy->shouldRetry($t)) {
+                if ( ! $this->retryStrategy->shouldRetry($t) ) {
                     throw $t;
                 }
 
@@ -196,14 +195,14 @@ class Retrier
             call_user_func($this->onRetryListener, $try, $value, $throwable);
 
             // Only wait if it's not the last retry
-            if ($try < $this->retryTimes) {
+            if ( $try < $this->retryTimes ) {
                 sleep($this->delay);
             }
         }
 
         // If after finish the user func and the throwable is not null
         // We need to throw it
-        if (! is_null($throwable)) {
+        if ( ! is_null($throwable) ) {
             throw $throwable;
         }
 
