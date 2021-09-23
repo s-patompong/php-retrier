@@ -91,7 +91,8 @@ echo $value;
 
 ## Retry Strategy
 
-RetryStrategy is a class that implement RetryStrategy interface.
+RetryStrategy is a class that implement RetryStrategy interface. The Retrier class uses it to determine if it should retry or not (given the return value from the logic).
+
 ```php
 interface RetryStrategy
 {
